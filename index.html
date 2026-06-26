@@ -8,448 +8,878 @@
 <body>
 <x-dc>
 <helmet>
+<script src="rh-seed.js"></script>
 <style>
   *{box-sizing:border-box;}
   body{margin:0;}
   input,select,button,textarea{font-family:inherit;}
-  input::placeholder{color:rgba(0,0,0,0.35);}
+  input::placeholder{color:rgba(0,0,0,0.3);}
   select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='rgba(0,0,0,0.4)' stroke-width='1.4'/></svg>");background-repeat:no-repeat;background-position:right 10px center;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.18);border-radius:4px;}
   @keyframes om-slidein{from{transform:translateX(100%);}to{transform:translateX(0);}}
   @keyframes om-fadein{from{opacity:0;}to{opacity:1;}}
   @keyframes om-pop{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
 </style>
 </helmet>
-<div style="min-height:100vh;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:rgba(0,0,0,0.88);padding:24px 32px;font-size:14px;">
+<div style="display:flex;min-width:1180px;min-height:100vh;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:rgba(0,0,0,0.88);font-size:14px;">
 
-  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;">
-    <div>
-      <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-bottom:4px;">Recursos Humanos</div>
-      <div style="font-size:22px;font-weight:600;line-height:1.2;">Colaboradores</div>
+  <!-- SIDEBAR -->
+  <div style="{{ sidebarStyle }}">
+    <div style="padding:16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.08);min-height:60px;flex:none;overflow:hidden;">
+      <div style="width:32px;height:32px;border-radius:7px;background:#1677ff;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:15px;flex:none;">RH</div>
+      <sc-if value="{{ showExpanded }}" hint-placeholder-val="{{ true }}">
+        <div style="line-height:1.15;overflow:hidden;">
+          <div style="color:#fff;font-weight:600;font-size:14px;white-space:nowrap;">Pessoas &amp; Acessos</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap;">Filial Rio · EPC-15</div>
+        </div>
+      </sc-if>
     </div>
-    <div style="font-size:13px;color:rgba(0,0,0,0.45);">{{ total }} cadastrados · {{ ativos }} ativos</div>
-  </div>
-
-  <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.03);overflow:hidden;">
-
-    <div style="display:flex;gap:8px;align-items:center;padding:16px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;">
-      <div style="position:relative;width:280px;">
-        <svg width="14" height="14" viewBox="0 0 16 16" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="6.5" cy="6.5" r="5" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"></circle><line x1="10.3" y1="10.3" x2="15" y2="15" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"></line></svg>
-        <input value="{{ search }}" onChange="{{ onSearch }}" placeholder="Buscar por nome, cargo ou e-mail" style="width:100%;height:32px;padding:4px 11px 4px 32px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;transition:border-color .2s,box-shadow .2s;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-      </div>
-      <select value="{{ filterRole }}" onChange="{{ onFilterRole }}" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;color:rgba(0,0,0,0.88);background-color:#fff;cursor:pointer;outline:none;min-width:170px;">
-        <option value="">Todos os perfis</option>
-        <option value="Diretor de obra">Diretor de obra</option>
-        <option value="Engenheiro de campo">Engenheiro de campo</option>
-        <option value="Comprador">Comprador</option>
-        <option value="Almoxarife">Almoxarife</option>
-        <option value="Financeiro">Financeiro</option>
-        <option value="Auditor">Auditor</option>
-        <option value="Admin RH">Admin RH</option>
-      </select>
-      <select value="{{ filterStatus }}" onChange="{{ onFilterStatus }}" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;color:rgba(0,0,0,0.88);background-color:#fff;cursor:pointer;outline:none;min-width:140px;">
-        <option value="">Todos os status</option>
-        <option value="Ativo">Ativo</option>
-        <option value="Inativo">Inativo</option>
-      </select>
-      <div style="flex:1;"></div>
-      <button onClick="{{ onNew }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 0 rgba(5,145,255,0.1);transition:background .2s;" style-hover="background:#4096ff;">
-        <span style="font-size:17px;line-height:1;font-weight:400;">+</span> Novo colaborador
-      </button>
-    </div>
-
-    <table style="width:100%;border-collapse:collapse;">
-      <thead>
-        <tr style="background:#fafafa;">
-          <th style="text-align:left;font-weight:600;font-size:14px;color:rgba(0,0,0,0.88);padding:12px 16px;border-bottom:1px solid #f0f0f0;">Colaborador</th>
-          <th style="text-align:left;font-weight:600;font-size:14px;color:rgba(0,0,0,0.88);padding:12px 16px;border-bottom:1px solid #f0f0f0;">Cargo</th>
-          <th style="text-align:left;font-weight:600;font-size:14px;color:rgba(0,0,0,0.88);padding:12px 16px;border-bottom:1px solid #f0f0f0;">Obra / Centro de custo</th>
-          <th style="text-align:left;font-weight:600;font-size:14px;color:rgba(0,0,0,0.88);padding:12px 16px;border-bottom:1px solid #f0f0f0;">Perfil de acesso</th>
-          <th style="text-align:left;font-weight:600;font-size:14px;color:rgba(0,0,0,0.88);padding:12px 16px;border-bottom:1px solid #f0f0f0;">Status</th>
-          <th style="text-align:right;font-weight:600;font-size:14px;color:rgba(0,0,0,0.88);padding:12px 16px;border-bottom:1px solid #f0f0f0;">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <sc-for list="{{ displayUsers }}" as="user" hint-placeholder-count="4">
-          <tr style="border-bottom:1px solid #f0f0f0;transition:background .15s;" style-hover="background:#fafafa;">
-            <td style="padding:12px 16px;">
-              <div style="display:flex;align-items:center;gap:12px;">
-                <sc-if value="{{ user.hasPhoto }}" hint-placeholder-val="{{ false }}">
-                  <img src="{{ user.photo }}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex:none;" />
-                </sc-if>
-                <sc-if value="{{ user.noPhoto }}" hint-placeholder-val="{{ true }}">
-                  <div style="width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;background:{{ user.rmBg }};color:{{ user.rmText }};">{{ user.initials }}</div>
-                </sc-if>
-                <div style="min-width:0;">
-                  <div style="font-size:14px;color:rgba(0,0,0,0.88);font-weight:500;">{{ user.nome }}</div>
-                  <div style="font-size:12px;color:rgba(0,0,0,0.45);">{{ user.email }}</div>
-                </div>
-              </div>
-            </td>
-            <td style="padding:12px 16px;color:rgba(0,0,0,0.65);">{{ user.cargo }}</td>
-            <td style="padding:12px 16px;color:rgba(0,0,0,0.65);">{{ user.obra }}</td>
-            <td style="padding:12px 16px;">
-              <span style="display:inline-block;padding:1px 8px;font-size:12px;line-height:20px;border-radius:4px;border:1px solid {{ user.rmBorder }};background:{{ user.rmBg }};color:{{ user.rmText }};">{{ user.perfil }}</span>
-            </td>
-            <td style="padding:12px 16px;">
-              <span style="display:inline-flex;align-items:center;gap:6px;padding:1px 8px;font-size:12px;line-height:20px;border-radius:4px;border:1px solid {{ user.smBorder }};background:{{ user.smBg }};color:{{ user.smText }};">
-                <span style="width:6px;height:6px;border-radius:50%;background:{{ user.smDot }};"></span>{{ user.status }}
-              </span>
-            </td>
-            <td style="padding:12px 16px;">
-              <div style="display:flex;gap:14px;justify-content:flex-end;">
-                <span onClick="{{ user.onEdit }}" style="color:#1677ff;cursor:pointer;" style-hover="color:#4096ff;">Editar</span>
-                <span onClick="{{ user.onAsk }}" style="color:#ff4d4f;cursor:pointer;" style-hover="color:#ff7875;">Excluir</span>
-              </div>
-            </td>
-          </tr>
-        </sc-for>
-      </tbody>
-    </table>
-
-    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
-      <div style="padding:56px 16px;text-align:center;color:rgba(0,0,0,0.25);">
-        <div style="font-size:32px;margin-bottom:8px;">∅</div>
-        <div style="font-size:14px;">Nenhum colaborador encontrado com os filtros atuais.</div>
+    <sc-if value="{{ showExpanded }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:10px;display:flex;flex-direction:column;gap:1px;flex:1;overflow:hidden;">
+        <div onClick="{{ onNavColab }}" style="{{ navColabStyle }}">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.5"></circle><path d="M2 14c0-3 2.7-4.5 6-4.5s6 1.5 6 4.5"></path></svg>
+          <span style="flex:1;">Colaboradores</span>
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="{{ navChevronStyle }}"><path d="M2 4l4 4 4-4"></path></svg>
+        </div>
+        <sc-if value="{{ navSubExpanded }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:1px;margin-left:19px;padding-left:6px;border-left:1px solid rgba(255,255,255,0.1);margin-bottom:6px;">
+            <div onClick="{{ onNavEquipes }}" style="{{ navEquipesStyle }}">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="5.5" cy="5" r="2"></circle><path d="M1 13.5c0-2.2 2-3.5 4.5-3.5"></path><circle cx="11" cy="5" r="2"></circle><path d="M15 13.5c0-2.2-2-3.5-4.5-3.5S6 11.3 6 13.5"></path></svg>
+              <span>Equipes</span>
+            </div>
+            <div onClick="{{ onNavCentros }}" style="{{ navCentrosStyle }}">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 14V5l6-3 6 3v9"></path><path d="M2 14h12"></path><path d="M7 14V9h2v5"></path></svg>
+              <span>Centros de custo</span>
+            </div>
+            <div onClick="{{ onNavPerfis }}" style="{{ navPerfisStyle }}">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M8 2L3 4.5v4C3 11.6 5.3 14 8 14s5-2.4 5-5.5v-4L8 2z"></path></svg>
+              <span>Perfis &amp; Permissões</span>
+            </div>
+          </div>
+        </sc-if>
       </div>
     </sc-if>
-
+    <sc-if value="{{ showCollapsed }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0;flex:1;">
+        <div onClick="{{ onNavColab }}" style="{{ navColabCollapsed }}" title="Colaboradores">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.5"></circle><path d="M2 14c0-3 2.7-4.5 6-4.5s6 1.5 6 4.5"></path></svg>
+        </div>
+        <div style="height:1px;width:28px;background:rgba(255,255,255,0.1);margin:4px 0;"></div>
+        <div onClick="{{ onNavEquipes }}" style="{{ navEquipesCollapsed }}" title="Equipes">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="5.5" cy="5" r="2"></circle><path d="M1 13.5c0-2.2 2-3.5 4.5-3.5"></path><circle cx="11" cy="5" r="2"></circle><path d="M15 13.5c0-2.2-2-3.5-4.5-3.5S6 11.3 6 13.5"></path></svg>
+        </div>
+        <div onClick="{{ onNavCentros }}" style="{{ navCentrosCollapsed }}" title="Centros de custo">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 14V5l6-3 6 3v9"></path><path d="M2 14h12"></path><path d="M7 14V9h2v5"></path></svg>
+        </div>
+        <div onClick="{{ onNavPerfis }}" style="{{ navPerfisCollapsed }}" title="Perfis &amp; Permissões">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M8 2L3 4.5v4C3 11.6 5.3 14 8 14s5-2.4 5-5.5v-4L8 2z"></path></svg>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showExpanded }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;line-height:1.6;">
+        <div style="display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.55);">
+          <span style="width:7px;height:7px;border-radius:50%;background:#52c41a;flex:none;"></span> Integração RH ativa
+        </div>
+        <div style="color:rgba(255,255,255,0.35);margin-top:3px;">Última sincronização<br>{{ lastSync }}</div>
+      </div>
+    </sc-if>
+    <div onClick="{{ onToggleSidebar }}" style="padding:10px 0;display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,0.08);cursor:pointer;color:rgba(255,255,255,0.35);flex:none;" style-hover="color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.05);">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="{{ collapseChevronD }}"></path></svg>
+    </div>
   </div>
 
-  <div style="margin-top:12px;font-size:12px;color:rgba(0,0,0,0.35);">Exclusão remove o cadastro. Para preservar a trilha de auditoria (LGPD), prefira inativar o colaborador no formulário.</div>
+  <!-- MAIN -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
 
-  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
-    <div style="position:fixed;inset:0;z-index:1000;">
-      <div onClick="{{ onCloseDrawer }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);animation:om-fadein .2s ease;"></div>
-      <div style="position:absolute;top:0;right:0;bottom:0;width:560px;max-width:92vw;background:#fff;display:flex;flex-direction:column;box-shadow:-6px 0 16px rgba(0,0,0,0.08);animation:om-slidein .25s cubic-bezier(.16,1,.3,1);">
-
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #f0f0f0;flex:none;">
-          <div>
-            <div style="font-size:16px;font-weight:600;color:rgba(0,0,0,0.88);">{{ drawerTitle }}</div>
-            <div style="font-size:13px;color:rgba(0,0,0,0.45);margin-top:2px;">{{ drawerSubtitle }}</div>
-          </div>
-          <div onClick="{{ onCloseDrawer }}" style="cursor:pointer;color:rgba(0,0,0,0.45);padding:2px;line-height:0;" style-hover="color:rgba(0,0,0,0.88);">
-            <svg width="16" height="16" viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="1.5"></line><line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="1.5"></line></svg>
-          </div>
+    <!-- TOPBAR -->
+    <div style="height:60px;flex:none;background:#fff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50;">
+      <div>
+        <div style="font-size:11px;color:rgba(0,0,0,0.4);letter-spacing:.03em;text-transform:uppercase;">{{ viewKicker }}</div>
+        <div style="font-size:17px;font-weight:600;line-height:1.2;">{{ viewTitle }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(0,0,0,0.45);background:#fafafa;border:1px solid #f0f0f0;border-radius:16px;padding:5px 12px;">
+          <svg width="13" height="13" viewBox="0 0 16 16"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9" fill="none" stroke="#1677ff" stroke-width="1.4"/><path d="M13.5 2.5V5H11" fill="none" stroke="#1677ff" stroke-width="1.4"/></svg>
+          Sincroniza 1x/dia do Domínio RH
         </div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#1677ff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;">AT</div>
+      </div>
+    </div>
 
-        <div style="flex:1;overflow-y:auto;padding:24px;">
+    <div style="flex:1;padding:24px 28px;min-width:0;">
 
-          <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.88);text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">Identificação</div>
-          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-            <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}">
-              <img src="{{ form.photo }}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none;border:1px solid #f0f0f0;" />
-            </sc-if>
-            <sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ true }}">
-              <div style="width:64px;height:64px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;background:#f0f5ff;color:#2f54eb;border:1px dashed #d9d9d9;">{{ formInitials }}</div>
-            </sc-if>
-            <div>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <label style="height:32px;padding:0 16px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);cursor:pointer;display:inline-flex;align-items:center;background:#fff;" style-hover="color:#1677ff;border-color:#1677ff;">
-                  Selecionar foto
-                  <input type="file" accept="image/*" onChange="{{ onPhoto }}" style="display:none;" />
-                </label>
-                <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ false }}">
-                  <span onClick="{{ removePhoto }}" style="font-size:13px;color:#ff4d4f;cursor:pointer;">Remover</span>
+      <!-- ===== VIEW: COLABORADORES ===== -->
+      <sc-if value="{{ isColab }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="display:flex;align-items:center;gap:18px;margin-bottom:16px;flex-wrap:wrap;">
+            <div style="font-size:13px;color:rgba(0,0,0,0.45);">{{ colabCount }} colaboradores · {{ ativosCount }} ativos · {{ inativosCount }} inativos</div>
+            <div style="flex:1;"></div>
+            <div style="font-size:12px;color:rgba(0,0,0,0.4);display:flex;align-items:center;gap:6px;">
+              <span style="width:14px;height:14px;border-radius:3px;border:1px solid #d9d9d9;background:#fafafa;display:inline-block;"></span> Origem RH (somente leitura) ·
+              <span style="width:14px;height:14px;border-radius:3px;border:1px solid #91caff;background:#e6f4ff;display:inline-block;"></span> Editável neste sistema
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.03);overflow:visible;">
+            <div style="display:flex;gap:8px;align-items:center;padding:16px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;">
+              <div style="position:relative;width:280px;">
+                <svg width="14" height="14" viewBox="0 0 16 16" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="6.5" cy="6.5" r="5" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"></circle><line x1="10.3" y1="10.3" x2="15" y2="15" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"></line></svg>
+                <input value="{{ search }}" onChange="{{ onSearch }}" placeholder="Buscar por nome, matrícula ou cargo" style="width:100%;height:32px;padding:4px 11px 4px 32px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
+              </div>
+              <select value="{{ filterEquipe }}" onChange="{{ onFilterEquipe }}" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;background-color:#fff;cursor:pointer;outline:none;min-width:150px;">
+                <option value="">Todas as equipes</option>
+                <sc-for list="{{ equipeOptions }}" as="opt" hint-placeholder-count="4"><option value="{{ opt.id }}">{{ opt.nome }}</option></sc-for>
+              </select>
+              <select value="{{ filterCentro }}" onChange="{{ onFilterCentro }}" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;background-color:#fff;cursor:pointer;outline:none;min-width:160px;">
+                <option value="">Todos os centros</option>
+                <sc-for list="{{ centroOptions }}" as="opt" hint-placeholder-count="4"><option value="{{ opt.id }}">{{ opt.label }}</option></sc-for>
+              </select>
+              <select value="{{ filterStatus }}" onChange="{{ onFilterStatus }}" style="height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;background-color:#fff;cursor:pointer;outline:none;min-width:130px;">
+                <option value="">Todos status</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+              <div style="flex:1;"></div>
+              <div style="position:relative;">
+                <button onClick="{{ toggleColMenu }}" style="height:32px;padding:0 14px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;" style-hover="border-color:#1677ff;color:#1677ff;">
+                  <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><line x1="6" y1="2.5" x2="6" y2="13.5" stroke="currentColor" stroke-width="1.3"/><line x1="10.5" y1="2.5" x2="10.5" y2="13.5" stroke="currentColor" stroke-width="1.3"/></svg>
+                  Colunas
+                </button>
+                <sc-if value="{{ colMenuOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:38px;right:0;z-index:80;width:240px;background:#fff;border:1px solid #f0f0f0;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.12);padding:8px;animation:om-pop .15s ease;">
+                    <div style="font-size:12px;color:rgba(0,0,0,0.45);padding:4px 8px 8px;border-bottom:1px solid #f5f5f5;margin-bottom:4px;">Exibir colunas na tabela</div>
+                    <div style="max-height:300px;overflow-y:auto;">
+                      <sc-for list="{{ colChooser }}" as="col" hint-placeholder-count="7">
+                        <label style="display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:5px;cursor:pointer;font-size:13px;" style-hover="background:#fafafa;">
+                          <input type="checkbox" checked="{{ col.checked }}" onChange="{{ col.toggle }}" style="width:15px;height:15px;accent-color:#1677ff;cursor:pointer;" />
+                          {{ col.label }}
+                        </label>
+                      </sc-for>
+                    </div>
+                  </div>
                 </sc-if>
               </div>
-              <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:6px;">JPG ou PNG, até 2 MB.</div>
             </div>
-          </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px;">
-            <div style="grid-column:1 / -1;">
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;"><span style="color:#ff4d4f;margin-right:4px;">*</span>Nome completo</label>
-              <input value="{{ form.nome }}" onChange="{{ set.nome }}" placeholder="Ex.: Marina Albuquerque" style="width:100%;height:32px;padding:4px 11px;border:1px solid {{ nomeBorder }};border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;transition:border-color .2s,box-shadow .2s;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-              <sc-if value="{{ nomeError }}" hint-placeholder-val="{{ false }}">
-                <div style="font-size:12px;color:#ff4d4f;margin-top:4px;">Informe o nome do colaborador.</div>
-              </sc-if>
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">CPF</label>
-              <input value="{{ form.cpf }}" onChange="{{ set.cpf }}" placeholder="000.000.000-00" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Data de nascimento</label>
-              <input type="date" value="{{ form.nascimento }}" onChange="{{ set.nascimento }}" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-          </div>
+            <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;white-space:nowrap;">
+              <thead>
+                <tr style="background:#fafafa;">
+                  <sc-for list="{{ cols }}" as="col" hint-placeholder-count="7">
+                    <th style="text-align:left;font-weight:600;font-size:13px;color:rgba(0,0,0,0.85);padding:11px 16px;border-bottom:1px solid #f0f0f0;">{{ col.label }}</th>
+                  </sc-for>
 
-          <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.88);text-transform:uppercase;letter-spacing:.04em;margin:24px 0 16px;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">Contato</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">E-mail corporativo</label>
-              <input value="{{ form.email }}" onChange="{{ set.email }}" placeholder="nome@construtora.com.br" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Celular</label>
-              <input value="{{ form.celular }}" onChange="{{ set.celular }}" placeholder="(00) 00000-0000" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-          </div>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ rows }}" as="row" hint-placeholder-count="6">
+                  <tr onClick="{{ row.onOpen }}" style="border-bottom:1px solid #f5f5f5;transition:background .15s;cursor:pointer;" style-hover="background:#fafafa;">
+                    <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="7">
+                      <td style="padding:10px 16px;font-size:14px;">
+                        <sc-if value="{{ cell.isName }}" hint-placeholder-val="{{ false }}">
+                          <div style="display:flex;align-items:center;gap:11px;">
+                            <div style="{{ cell.avStyle }}"><sc-if value="{{ cell.noPhoto }}" hint-placeholder-val="{{ true }}">{{ cell.initials }}</sc-if></div>
+                            <div style="min-width:0;">
+                              <div style="font-weight:500;color:rgba(0,0,0,0.88);">{{ cell.text }}</div>
+                              <div style="font-size:12px;color:rgba(0,0,0,0.4);">{{ cell.sub }}</div>
+                            </div>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ cell.isTag }}" hint-placeholder-val="{{ false }}">
+                          <span style="display:inline-flex;align-items:center;gap:6px;padding:1px 9px;font-size:12px;line-height:20px;border-radius:4px;border:1px solid {{ cell.tagBorder }};background:{{ cell.tagBg }};color:{{ cell.tagText }};">
+                            <sc-if value="{{ cell.hasDot }}" hint-placeholder-val="{{ false }}"><span style="width:6px;height:6px;border-radius:50%;background:{{ cell.dot }};"></span></sc-if>{{ cell.text }}
+                          </span>
+                        </sc-if>
+                        <sc-if value="{{ cell.isText }}" hint-placeholder-val="{{ true }}"><span style="color:{{ cell.color }};">{{ cell.text }}</span></sc-if>
+                      </td>
+                    </sc-for>
 
-          <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.88);text-transform:uppercase;letter-spacing:.04em;margin:24px 0 16px;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">Endereço</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">CEP</label>
-              <input value="{{ form.cep }}" onChange="{{ set.cep }}" placeholder="00000-000" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
             </div>
-            <div style="grid-column:span 2;">
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Logradouro</label>
-              <input value="{{ form.logradouro }}" onChange="{{ set.logradouro }}" placeholder="Rua, avenida..." style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Número</label>
-              <input value="{{ form.numero }}" onChange="{{ set.numero }}" placeholder="Nº" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Cidade</label>
-              <input value="{{ form.cidade }}" onChange="{{ set.cidade }}" placeholder="Cidade" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">UF</label>
-              <select value="{{ form.uf }}" onChange="{{ set.uf }}" style="width:100%;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;color:rgba(0,0,0,0.88);background-color:#fff;cursor:pointer;outline:none;">
-                <option value="">—</option>
-                <option value="AC">AC</option><option value="AL">AL</option><option value="AM">AM</option><option value="AP">AP</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MG">MG</option><option value="MS">MS</option><option value="MT">MT</option><option value="PA">PA</option><option value="PB">PB</option><option value="PE">PE</option><option value="PI">PI</option><option value="PR">PR</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RO">RO</option><option value="RR">RR</option><option value="RS">RS</option><option value="SC">SC</option><option value="SE">SE</option><option value="SP">SP</option><option value="TO">TO</option>
-              </select>
-            </div>
-          </div>
 
-          <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.88);text-transform:uppercase;letter-spacing:.04em;margin:24px 0 16px;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">Vínculo</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Matrícula</label>
-              <input value="{{ form.matricula }}" onChange="{{ set.matricula }}" placeholder="Ex.: ENG-0142" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Admissão</label>
-              <input type="date" value="{{ form.admissao }}" onChange="{{ set.admissao }}" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Cargo</label>
-              <input value="{{ form.cargo }}" onChange="{{ set.cargo }}" placeholder="Ex.: Engenheira de Campo" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;color:rgba(0,0,0,0.88);outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Departamento</label>
-              <select value="{{ form.departamento }}" onChange="{{ set.departamento }}" style="width:100%;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;color:rgba(0,0,0,0.88);background-color:#fff;cursor:pointer;outline:none;">
-                <option value="">Selecione</option>
-                <option value="Engenharia">Engenharia</option>
-                <option value="Suprimentos">Suprimentos</option>
-                <option value="Financeiro">Financeiro</option>
-                <option value="Administrativo">Administrativo</option>
-                <option value="Auditoria">Auditoria</option>
-                <option value="RH">RH</option>
-              </select>
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Obra / Centro de custo</label>
-              <select value="{{ form.obra }}" onChange="{{ set.obra }}" style="width:100%;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;color:rgba(0,0,0,0.88);background-color:#fff;cursor:pointer;outline:none;">
-                <option value="">Selecione</option>
-                <option value="Residencial Vista Verde">Residencial Vista Verde</option>
-                <option value="Edifício Aurora">Edifício Aurora</option>
-                <option value="Galpão Industrial CPL">Galpão Industrial CPL</option>
-                <option value="Reforma Sede">Reforma Sede</option>
-              </select>
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Tipo de contrato</label>
-              <select value="{{ form.contrato }}" onChange="{{ set.contrato }}" style="width:100%;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;color:rgba(0,0,0,0.88);background-color:#fff;cursor:pointer;outline:none;">
-                <option value="CLT">CLT</option>
-                <option value="PJ">PJ</option>
-                <option value="Temporário">Temporário</option>
-                <option value="Terceirizado">Terceirizado</option>
-              </select>
-            </div>
+            <sc-if value="{{ colabEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:56px 16px;text-align:center;color:rgba(0,0,0,0.25);"><div style="font-size:30px;margin-bottom:6px;">∅</div><div>Nenhum colaborador encontrado com os filtros atuais.</div></div>
+            </sc-if>
           </div>
+          <div style="margin-top:12px;font-size:12px;color:rgba(0,0,0,0.4);">Colaboradores são importados do Domínio RH e não podem ser criados ou excluídos aqui. Campos da integração que já foram editados localmente não são sobrescritos na próxima sincronização.</div>
+        </div>
+      </sc-if>
 
-          <div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.88);text-transform:uppercase;letter-spacing:.04em;margin:24px 0 16px;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">Acesso ao sistema</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div style="grid-column:1 / -1;">
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Perfil de acesso (RBAC)</label>
-              <select value="{{ form.perfil }}" onChange="{{ set.perfil }}" style="width:100%;height:32px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;color:rgba(0,0,0,0.88);background-color:#fff;cursor:pointer;outline:none;">
-                <option value="Diretor de obra">Diretor de obra</option>
-                <option value="Engenheiro de campo">Engenheiro de campo</option>
-                <option value="Comprador">Comprador</option>
-                <option value="Almoxarife">Almoxarife</option>
-                <option value="Financeiro">Financeiro</option>
-                <option value="Auditor">Auditor</option>
-                <option value="Admin RH">Admin RH</option>
-              </select>
-              <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:6px;">Define as permissões (CASL). O escopo por obra acima limita o que o perfil enxerga.</div>
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Status do acesso</label>
-              <div style="display:flex;background:#f5f5f5;border-radius:6px;padding:2px;gap:2px;max-width:240px;">
-                <div onClick="{{ setAtivo }}" style="{{ segAtivoStyle }}">Ativo</div>
-                <div onClick="{{ setInativo }}" style="{{ segInativoStyle }}">Inativo</div>
-              </div>
-            </div>
-            <div>
-              <label style="display:block;font-size:14px;color:rgba(0,0,0,0.88);margin-bottom:6px;">Autenticação em 2 fatores</label>
-              <div style="display:flex;align-items:center;gap:10px;height:32px;">
-                <div onClick="{{ toggleMfa }}" style="{{ mfaTrackStyle }}">
-                  <div style="{{ mfaKnobStyle }}"></div>
+      <!-- ===== VIEW: EQUIPES ===== -->
+      <sc-if value="{{ isEquipes }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display:flex;align-items:center;margin-bottom:16px;">
+            <div style="font-size:13px;color:rgba(0,0,0,0.45);">Equipes vinculam colaboradores às frentes de serviço da obra.</div>
+            <div style="flex:1;"></div>
+            <button onClick="{{ onNewEquipe }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;" style-hover="background:#4096ff;"><span style="font-size:17px;font-weight:400;">+</span> Nova equipe</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <sc-for list="{{ equipesList }}" as="eq" hint-placeholder-count="6">
+              <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+                  <div style="display:flex;align-items:center;gap:11px;">
+                    <div style="width:40px;height:40px;border-radius:8px;background:#f0f5ff;color:#2f54eb;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;">{{ eq.sigla }}</div>
+                    <div>
+                      <div style="font-weight:600;font-size:15px;">{{ eq.nome }}</div>
+                      <div style="font-size:12px;color:rgba(0,0,0,0.45);">{{ eq.membros }} colaboradores</div>
+                    </div>
+                  </div>
                 </div>
-                <sc-if value="{{ mfaOn }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:rgba(0,0,0,0.65);">Obrigatória</span></sc-if>
+                <div style="font-size:13px;color:rgba(0,0,0,0.55);margin:14px 0 6px;line-height:1.5;">{{ eq.descricao }}</div>
+                <div style="font-size:12px;color:rgba(0,0,0,0.4);">Responsável: {{ eq.responsavel }}</div>
+                <div style="display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:1px solid #f5f5f5;">
+                  <span onClick="{{ eq.onEdit }}" style="color:#1677ff;cursor:pointer;font-size:13px;" style-hover="color:#4096ff;">Editar</span>
+                  <span onClick="{{ eq.onDelete }}" style="color:#ff4d4f;cursor:pointer;font-size:13px;" style-hover="color:#ff7875;">Excluir</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ===== VIEW: CENTROS ===== -->
+      <sc-if value="{{ isCentros }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display:flex;align-items:center;margin-bottom:16px;">
+            <div style="font-size:13px;color:rgba(0,0,0,0.45);">Centros de custo relacionam colaboradores a contratos / obras do cliente.</div>
+            <div style="flex:1;"></div>
+            <button onClick="{{ onNewCentro }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;" style-hover="background:#4096ff;"><span style="font-size:17px;font-weight:400;">+</span> Novo centro</button>
+          </div>
+          <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,0.03);overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;">
+              <thead><tr style="background:#fafafa;">
+                <th style="text-align:left;font-weight:600;font-size:13px;padding:11px 16px;border-bottom:1px solid #f0f0f0;">Código</th>
+                <th style="text-align:left;font-weight:600;font-size:13px;padding:11px 16px;border-bottom:1px solid #f0f0f0;">Descrição</th>
+                <th style="text-align:left;font-weight:600;font-size:13px;padding:11px 16px;border-bottom:1px solid #f0f0f0;">Cliente</th>
+                <th style="text-align:left;font-weight:600;font-size:13px;padding:11px 16px;border-bottom:1px solid #f0f0f0;">Alocados</th>
+                <th style="text-align:right;font-weight:600;font-size:13px;padding:11px 16px;border-bottom:1px solid #f0f0f0;">Ações</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ centrosList }}" as="cc" hint-placeholder-count="4">
+                  <tr style="border-bottom:1px solid #f5f5f5;" style-hover="background:#fafafa;">
+                    <td style="padding:12px 16px;"><span style="font-family:monospace;font-size:13px;background:#f0f5ff;color:#2f54eb;padding:2px 8px;border-radius:4px;font-weight:600;">{{ cc.codigo }}</span></td>
+                    <td style="padding:12px 16px;color:rgba(0,0,0,0.75);">{{ cc.nome }}</td>
+                    <td style="padding:12px 16px;color:rgba(0,0,0,0.55);">{{ cc.cliente }}</td>
+                    <td style="padding:12px 16px;color:rgba(0,0,0,0.55);">{{ cc.membros }}</td>
+                    <td style="padding:12px 16px;text-align:right;"><div style="display:flex;gap:14px;justify-content:flex-end;"><span onClick="{{ cc.onEdit }}" style="color:#1677ff;cursor:pointer;" style-hover="color:#4096ff;">Editar</span><span onClick="{{ cc.onDelete }}" style="color:#ff4d4f;cursor:pointer;" style-hover="color:#ff7875;">Excluir</span></div></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ===== VIEW: PERFIS ===== -->
+      <sc-if value="{{ isPerfis }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="display:flex;align-items:center;margin-bottom:16px;">
+            <div style="font-size:13px;color:rgba(0,0,0,0.45);">Perfis definem o acesso por tela em nível de <strong>C</strong>riar · <strong>R</strong>(ler) · <strong>U</strong>(editar) · <strong>D</strong>(excluir) — aplicados via CASL.</div>
+            <div style="flex:1;"></div>
+            <button onClick="{{ onNewPerfil }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;" style-hover="background:#4096ff;"><span style="font-size:17px;font-weight:400;">+</span> Novo perfil</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+            <sc-for list="{{ perfisList }}" as="pf" hint-placeholder-count="4">
+              <div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+                <div style="display:flex;align-items:flex-start;gap:11px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:{{ pf.cor }};margin-top:5px;flex:none;"></div>
+                  <div style="flex:1;">
+                    <div style="font-weight:600;font-size:15px;">{{ pf.nome }}</div>
+                    <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:1px;">{{ pf.descricao }}</div>
+                  </div>
+                  <div style="font-size:12px;color:rgba(0,0,0,0.4);white-space:nowrap;">{{ pf.membros }} usuários</div>
+                </div>
+                <div style="margin:14px 0 0;display:flex;flex-direction:column;gap:6px;">
+                  <sc-for list="{{ pf.chips }}" as="chip" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;">
+                      <span style="color:rgba(0,0,0,0.55);">{{ chip.tela }}</span>
+                      <span style="font-family:monospace;font-weight:600;color:rgba(0,0,0,0.7);background:#fafafa;border:1px solid #f0f0f0;padding:1px 7px;border-radius:4px;letter-spacing:1px;">{{ chip.val }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:1px solid #f5f5f5;">
+                  <span onClick="{{ pf.onEdit }}" style="color:#1677ff;cursor:pointer;font-size:13px;" style-hover="color:#4096ff;">Editar permissões</span>
+                  <span onClick="{{ pf.onDelete }}" style="color:#ff4d4f;cursor:pointer;font-size:13px;" style-hover="color:#ff7875;">Excluir</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <!-- ===== DRAWER: DETALHE COLABORADOR ===== -->
+  <sc-if value="{{ detailOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:1000;">
+      <div onClick="{{ closeDetail }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);animation:om-fadein .2s ease;"></div>
+      <div style="position:absolute;top:0;right:0;bottom:0;width:620px;max-width:94vw;background:#fff;display:flex;flex-direction:column;box-shadow:-6px 0 16px rgba(0,0,0,0.08);animation:om-slidein .25s cubic-bezier(.16,1,.3,1);">
+
+        <div style="padding:18px 24px;border-bottom:1px solid #f0f0f0;flex:none;display:flex;align-items:center;gap:14px;">
+          <sc-if value="{{ dHasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ d.foto }}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex:none;" /></sc-if>
+          <sc-if value="{{ dNoPhoto }}" hint-placeholder-val="{{ true }}"><div style="width:48px;height:48px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;background:{{ dAvBg }};color:{{ dAvText }};">{{ dInitials }}</div></sc-if>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:16px;font-weight:600;">{{ d.nome }}</div>
+            <div style="font-size:13px;color:rgba(0,0,0,0.45);">Matrícula {{ d.matricula }} · {{ dCargoRH }}</div>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 10px;font-size:12px;line-height:20px;border-radius:4px;border:1px solid {{ dStatusBorder }};background:{{ dStatusBg }};color:{{ dStatusText }};"><span style="width:6px;height:6px;border-radius:50%;background:{{ dStatusDot }};"></span>{{ d.status }}</span>
+          <div onClick="{{ closeDetail }}" style="cursor:pointer;color:rgba(0,0,0,0.4);padding:4px;line-height:0;" style-hover="color:rgba(0,0,0,0.85);"><svg width="16" height="16" viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="1.5"/><line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="1.5"/></svg></div>
+        </div>
+
+        <div style="display:flex;gap:4px;padding:0 24px;border-bottom:1px solid #f0f0f0;flex:none;">
+          <div onClick="{{ setTabDados }}" style="{{ tabDadosStyle }}">Dados &amp; vínculo</div>
+          <div onClick="{{ setTabAcesso }}" style="{{ tabAcessoStyle }}">Acesso ao sistema</div>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;padding:22px 24px;">
+
+          <!-- TAB DADOS -->
+          <sc-if value="{{ tabDadosOn }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:rgba(0,0,0,0.45);text-transform:uppercase;letter-spacing:.04em;margin-bottom:14px;">
+                <span style="width:8px;height:8px;border-radius:2px;background:#bfbfbf;"></span> Dados do RH — somente leitura
+              </div>
+              <div style="background:#fafafa;border:1px solid #f0f0f0;border-radius:8px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-bottom:22px;">
+                <div><div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:2px;">CPF</div><div>{{ dCpf }}</div></div>
+                <div><div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:2px;">RG</div><div>{{ d.rg }}</div></div>
+                <div><div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:2px;">Nascimento</div><div>{{ d.nascimento }}</div></div>
+                <div><div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:2px;">Sexo</div><div>{{ d.sexo }}</div></div>
+                <div><div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:2px;">Admissão</div><div>{{ d.admissao }}</div></div>
+                <div><div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:2px;">E-mail (RH)</div><div>{{ dEmailRH }}</div></div>
+                <div style="grid-column:1 / -1;border-top:1px solid #f0f0f0;padding-top:12px;"><div style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:2px;">Endereço inicial (origem RH)</div><div style="line-height:1.5;">{{ d.endRua }}<span>, </span>{{ d.endNumero }} {{ d.endComplemento }}<br>{{ d.endBairro }} — {{ d.endCidade }}/{{ d.endUf }} · CEP {{ dCep }}</div></div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#1677ff;text-transform:uppercase;letter-spacing:.04em;margin-bottom:14px;">
+                <span style="width:8px;height:8px;border-radius:2px;background:#1677ff;"></span> Editável neste sistema
+              </div>
+
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
+                <sc-if value="{{ dHasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ d.foto }}" alt="" style="width:60px;height:60px;border-radius:50%;object-fit:cover;flex:none;border:1px solid #f0f0f0;" /></sc-if>
+                <sc-if value="{{ dNoPhoto }}" hint-placeholder-val="{{ true }}"><div style="width:60px;height:60px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;background:{{ dAvBg }};color:{{ dAvText }};border:1px dashed #d9d9d9;">{{ dInitials }}</div></sc-if>
+                <div>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <label style="height:32px;padding:0 14px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;background:#fff;" style-hover="color:#1677ff;border-color:#1677ff;">Anexar foto<input type="file" accept="image/*" onChange="{{ setFoto }}" style="display:none;" /></label>
+                    <sc-if value="{{ dHasPhoto }}" hint-placeholder-val="{{ false }}"><span onClick="{{ removeFoto }}" style="font-size:13px;color:#ff4d4f;cursor:pointer;">Remover</span></sc-if>
+                  </div>
+                  <div style="font-size:12px;color:rgba(0,0,0,0.4);margin-top:6px;">A foto é mantida apenas neste sistema.</div>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px;">
+                <div style="grid-column:1 / -1;">
+                  <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:6px;">Cargo / função <sc-if value="{{ cargoEdited }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;color:#d46b08;background:#fff7e6;border:1px solid #ffd591;border-radius:4px;padding:0 6px;">editado · não será sobreposto pelo RH</span></sc-if></label>
+                  <input value="{{ d.cargoLocal }}" onChange="{{ ef.cargoLocal }}" placeholder="{{ cargoPlaceholder }}" style="width:100%;height:32px;padding:4px 11px;border:1px solid #91caff;background:#f7fbff;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
+                  <div style="font-size:12px;color:rgba(0,0,0,0.4);margin-top:4px;">Em branco usa o cargo do RH: {{ cargoPlaceholder }}</div>
+                </div>
+                <div>
+                  <label style="display:block;font-size:14px;margin-bottom:6px;">Matrícula Petrobras</label>
+                  <input value="{{ d.matriculaPetrobras }}" onChange="{{ ef.matriculaPetrobras }}" placeholder="Ex.: PB12345" style="width:100%;height:32px;padding:4px 11px;border:1px solid #91caff;background:#f7fbff;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
+                </div>
+                <div>
+                  <label style="display:block;font-size:14px;margin-bottom:6px;">Celular</label>
+                  <input value="{{ d.celular }}" onChange="{{ ef.celular }}" placeholder="(00) 00000-0000" style="width:100%;height:32px;padding:4px 11px;border:1px solid #91caff;background:#f7fbff;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
+                </div>
+                <div style="grid-column:1 / -1;">
+                  <label style="display:block;font-size:14px;margin-bottom:6px;">E-mail de contato</label>
+                  <input value="{{ d.emailLocal }}" onChange="{{ ef.emailLocal }}" placeholder="{{ dEmailRH }}" style="width:100%;height:32px;padding:4px 11px;border:1px solid #91caff;background:#f7fbff;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" />
+                </div>
+                <div>
+                  <label style="display:block;font-size:14px;margin-bottom:6px;">Equipe</label>
+                  <select value="{{ dEquipeId }}" onChange="{{ setEquipe }}" style="width:100%;height:32px;border:1px solid #91caff;background:#f7fbff;border-radius:6px;padding:0 28px 0 11px;font-size:14px;cursor:pointer;outline:none;"><option value="">—</option><sc-for list="{{ equipeSel }}" as="o" hint-placeholder-count="4"><option value="{{ o.id }}">{{ o.nome }}</option></sc-for></select>
+                </div>
+                <div>
+                  <label style="display:block;font-size:14px;margin-bottom:6px;">Centro de custo</label>
+                  <select value="{{ dCentroId }}" onChange="{{ setCentro }}" style="width:100%;height:32px;border:1px solid #91caff;background:#f7fbff;border-radius:6px;padding:0 28px 0 11px;font-size:14px;cursor:pointer;outline:none;"><option value="">—</option><sc-for list="{{ centroSel }}" as="o" hint-placeholder-count="4"><option value="{{ o.id }}">{{ o.codigo }}</option></sc-for></select>
+                </div>
+              </div>
+
+              <div style="margin-top:18px;border:1px solid #91caff;background:#f7fbff;border-radius:8px;padding:16px;">
+                <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;margin-bottom:4px;">📍 Endereço local (alojamento / lotação)</div>
+                <div style="font-size:12px;color:rgba(0,0,0,0.5);margin-bottom:14px;">Endereço onde o colaborador está de fato durante a obra. Independente do endereço inicial do RH.</div>
+                <div style="display:grid;grid-template-columns:120px 1fr 90px;gap:12px;">
+                  <div><label style="display:block;font-size:13px;margin-bottom:5px;">CEP</label><input value="{{ d.locCep }}" onChange="{{ ef.locCep }}" placeholder="00000-000" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;background:#fff;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+                  <div><label style="display:block;font-size:13px;margin-bottom:5px;">Logradouro</label><input value="{{ d.locRua }}" onChange="{{ ef.locRua }}" placeholder="Rua, avenida..." style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;background:#fff;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+                  <div><label style="display:block;font-size:13px;margin-bottom:5px;">Número</label><input value="{{ d.locNumero }}" onChange="{{ ef.locNumero }}" placeholder="Nº" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;background:#fff;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+                  <div style="grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr 1fr 70px;gap:12px;">
+                    <div><label style="display:block;font-size:13px;margin-bottom:5px;">Complemento</label><input value="{{ d.locComplemento }}" onChange="{{ ef.locComplemento }}" placeholder="Apto, bloco..." style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;background:#fff;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+                    <div><label style="display:block;font-size:13px;margin-bottom:5px;">Bairro</label><input value="{{ d.locBairro }}" onChange="{{ ef.locBairro }}" placeholder="Bairro" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;background:#fff;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+                    <div><label style="display:block;font-size:13px;margin-bottom:5px;">Cidade</label><input value="{{ d.locCidade }}" onChange="{{ ef.locCidade }}" placeholder="Cidade" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;background:#fff;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+                    <div><label style="display:block;font-size:13px;margin-bottom:5px;">UF</label><input value="{{ d.locUf }}" onChange="{{ ef.locUf }}" placeholder="UF" maxlength="2" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;background:#fff;text-transform:uppercase;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </sc-if>
+
+          <!-- TAB ACESSO -->
+          <sc-if value="{{ tabAcessoOn }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="margin-bottom:18px;">
+                <label style="display:block;font-size:14px;margin-bottom:6px;">Perfil base (CASL)</label>
+                <select value="{{ dPerfilId }}" onChange="{{ setPerfilSel }}" style="width:100%;height:34px;border:1px solid #d9d9d9;border-radius:6px;padding:0 28px 0 11px;font-size:14px;cursor:pointer;outline:none;"><option value="">— Sem perfil —</option><sc-for list="{{ perfilSel }}" as="p" hint-placeholder-count="4"><option value="{{ p.id }}">{{ p.nome }}</option></sc-for></select>
+                <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:6px;">{{ perfilDesc }} Ajuste fino abaixo aplica-se só a este colaborador.</div>
+              </div>
+
+              <div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.45);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Permissões por tela</div>
+              <div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;margin-bottom:24px;">
+                <div style="display:grid;grid-template-columns:1fr 36px 36px 36px 36px;gap:8px;padding:9px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;font-size:12px;color:rgba(0,0,0,0.5);text-align:center;">
+                  <div style="text-align:left;">Tela</div><div title="Criar">Criar</div><div title="Ler">Ler</div><div title="Editar">Edit</div><div title="Excluir">Excl</div>
+                </div>
+                <sc-for list="{{ detailPerms }}" as="row" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:1fr 36px 36px 36px 36px;gap:8px;padding:8px 14px;border-bottom:1px solid #f5f5f5;align-items:center;">
+                    <div style="font-size:14px;">{{ row.tela }}</div>
+                    <div onClick="{{ row.c.toggle }}" style="{{ row.c.style }}">C</div>
+                    <div onClick="{{ row.r.toggle }}" style="{{ row.r.style }}">R</div>
+                    <div onClick="{{ row.u.toggle }}" style="{{ row.u.style }}">U</div>
+                    <div onClick="{{ row.d.toggle }}" style="{{ row.d.style }}">D</div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.45);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Senha temporária</div>
+              <div style="border:1px solid #f0f0f0;border-radius:8px;padding:16px;">
+                <div style="font-size:13px;color:rgba(0,0,0,0.55);margin-bottom:12px;line-height:1.5;">Gere uma senha provisória para o primeiro acesso. O colaborador será obrigado a trocá-la no login.</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input value="{{ dSenha }}" readonly="readonly" placeholder="Clique em gerar" style="flex:1;height:34px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:15px;font-family:monospace;letter-spacing:1px;background:#fafafa;outline:none;" />
+                  <button onClick="{{ genSenha }}" style="height:34px;padding:0 14px;background:#fff;border:1px solid #1677ff;color:#1677ff;border-radius:6px;font-size:14px;cursor:pointer;white-space:nowrap;" style-hover="background:#f0f7ff;">Gerar</button>
+                  <sc-if value="{{ hasSenha }}" hint-placeholder-val="{{ false }}"><button onClick="{{ copySenha }}" style="height:34px;padding:0 14px;background:#1677ff;border:none;color:#fff;border-radius:6px;font-size:14px;cursor:pointer;white-space:nowrap;" style-hover="background:#4096ff;">Copiar</button></sc-if>
+                </div>
+              </div>
+            </div>
+          </sc-if>
 
         </div>
 
-        <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid #f0f0f0;flex:none;">
-          <button onClick="{{ onCloseDrawer }}" style="height:32px;padding:0 16px;background:#fff;color:rgba(0,0,0,0.88);border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;" style-hover="color:#1677ff;border-color:#1677ff;">Cancelar</button>
-          <button onClick="{{ onSave }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;" style-hover="background:#4096ff;">Salvar</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 24px;border-top:1px solid #f0f0f0;flex:none;">
+          <div style="font-size:12px;color:rgba(0,0,0,0.4);">Status definido pela integração RH</div>
+          <div style="display:flex;gap:8px;">
+            <button onClick="{{ closeDetail }}" style="height:32px;padding:0 16px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;" style-hover="color:#1677ff;border-color:#1677ff;">Cancelar</button>
+            <button onClick="{{ saveDetail }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;" style-hover="background:#4096ff;">Salvar alterações</button>
+          </div>
         </div>
 
       </div>
     </div>
   </sc-if>
 
-  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+  <!-- MODAL: EQUIPE -->
+  <sc-if value="{{ equipeModal }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;">
-      <div onClick="{{ onCancelDelete }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);animation:om-fadein .2s ease;"></div>
+      <div onClick="{{ closeEquipe }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);animation:om-fadein .2s ease;"></div>
+      <div style="position:relative;width:480px;max-width:92vw;background:#fff;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.12);animation:om-pop .2s ease;">
+        <div style="padding:16px 24px;border-bottom:1px solid #f0f0f0;font-size:16px;font-weight:600;">{{ equipeTitle }}</div>
+        <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 110px;gap:14px;">
+          <div><label style="display:block;font-size:14px;margin-bottom:6px;"><span style="color:#ff4d4f;">*</span> Nome da equipe</label><input value="{{ eq.nome }}" onChange="{{ eqf.nome }}" placeholder="Ex.: Civil" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+          <div><label style="display:block;font-size:14px;margin-bottom:6px;">Sigla</label><input value="{{ eq.sigla }}" onChange="{{ eqf.sigla }}" placeholder="CIV" maxlength="4" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;text-transform:uppercase;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+          <div style="grid-column:1 / -1;"><label style="display:block;font-size:14px;margin-bottom:6px;">Responsável</label><input value="{{ eq.responsavel }}" onChange="{{ eqf.responsavel }}" placeholder="Nome do responsável" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+          <div style="grid-column:1 / -1;"><label style="display:block;font-size:14px;margin-bottom:6px;">Descrição</label><input value="{{ eq.descricao }}" onChange="{{ eqf.descricao }}" placeholder="Frente de serviço" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid #f0f0f0;">
+          <button onClick="{{ closeEquipe }}" style="height:32px;padding:0 16px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;" style-hover="color:#1677ff;border-color:#1677ff;">Cancelar</button>
+          <button onClick="{{ saveEquipe }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;" style-hover="background:#4096ff;">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- MODAL: CENTRO -->
+  <sc-if value="{{ centroModal }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;">
+      <div onClick="{{ closeCentro }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);animation:om-fadein .2s ease;"></div>
+      <div style="position:relative;width:480px;max-width:92vw;background:#fff;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.12);animation:om-pop .2s ease;">
+        <div style="padding:16px 24px;border-bottom:1px solid #f0f0f0;font-size:16px;font-weight:600;">{{ centroTitle }}</div>
+        <div style="padding:20px 24px;display:grid;grid-template-columns:140px 1fr;gap:14px;">
+          <div><label style="display:block;font-size:14px;margin-bottom:6px;"><span style="color:#ff4d4f;">*</span> Código</label><input value="{{ cc.codigo }}" onChange="{{ ccf.codigo }}" placeholder="EPC-15" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;text-transform:uppercase;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+          <div><label style="display:block;font-size:14px;margin-bottom:6px;">Cliente</label><input value="{{ cc.cliente }}" onChange="{{ ccf.cliente }}" placeholder="Petrobras" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+          <div style="grid-column:1 / -1;"><label style="display:block;font-size:14px;margin-bottom:6px;">Descrição</label><input value="{{ cc.nome }}" onChange="{{ ccf.nome }}" placeholder="Nome do contrato / obra" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid #f0f0f0;">
+          <button onClick="{{ closeCentro }}" style="height:32px;padding:0 16px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;" style-hover="color:#1677ff;border-color:#1677ff;">Cancelar</button>
+          <button onClick="{{ saveCentro }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;" style-hover="background:#4096ff;">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- MODAL: PERFIL -->
+  <sc-if value="{{ perfilModal }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;">
+      <div onClick="{{ closePerfil }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);animation:om-fadein .2s ease;"></div>
+      <div style="position:relative;width:560px;max-width:94vw;background:#fff;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.12);animation:om-pop .2s ease;max-height:90vh;display:flex;flex-direction:column;">
+        <div style="padding:16px 24px;border-bottom:1px solid #f0f0f0;font-size:16px;font-weight:600;flex:none;">{{ perfilTitle }}</div>
+        <div style="padding:20px 24px;overflow-y:auto;">
+          <div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:18px;">
+            <div><label style="display:block;font-size:14px;margin-bottom:6px;"><span style="color:#ff4d4f;">*</span> Nome do perfil</label><input value="{{ pf.nome }}" onChange="{{ pff.nome }}" placeholder="Ex.: Gestor de Equipe" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+            <div><label style="display:block;font-size:14px;margin-bottom:6px;">Descrição</label><input value="{{ pf.descricao }}" onChange="{{ pff.descricao }}" placeholder="O que este perfil pode fazer" style="width:100%;height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;outline:none;" style-focus="border-color:#1677ff;box-shadow:0 0 0 2px rgba(5,145,255,0.1);" /></div>
+            <div><label style="display:block;font-size:14px;margin-bottom:6px;">Cor</label><div style="display:flex;gap:10px;"><sc-for list="{{ perfilCorOptions }}" as="c" hint-placeholder-count="6"><div onClick="{{ c.pick }}" style="{{ c.style }}"></div></sc-for></div></div>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.45);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">Permissões por tela (CRUD)</div>
+          <div style="border:1px solid #f0f0f0;border-radius:8px;overflow:hidden;">
+            <div style="display:grid;grid-template-columns:1fr 36px 36px 36px 36px;gap:8px;padding:9px 14px;background:#fafafa;border-bottom:1px solid #f0f0f0;font-size:12px;color:rgba(0,0,0,0.5);text-align:center;"><div style="text-align:left;">Tela</div><div>Criar</div><div>Ler</div><div>Edit</div><div>Excl</div></div>
+            <sc-for list="{{ perfilPerms }}" as="row" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:1fr 36px 36px 36px 36px;gap:8px;padding:8px 14px;border-bottom:1px solid #f5f5f5;align-items:center;">
+                <div style="font-size:14px;">{{ row.tela }}</div>
+                <div onClick="{{ row.c.toggle }}" style="{{ row.c.style }}">C</div>
+                <div onClick="{{ row.r.toggle }}" style="{{ row.r.style }}">R</div>
+                <div onClick="{{ row.u.toggle }}" style="{{ row.u.style }}">U</div>
+                <div onClick="{{ row.d.toggle }}" style="{{ row.d.style }}">D</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid #f0f0f0;flex:none;">
+          <button onClick="{{ closePerfil }}" style="height:32px;padding:0 16px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;" style-hover="color:#1677ff;border-color:#1677ff;">Cancelar</button>
+          <button onClick="{{ savePerfil }}" style="height:32px;padding:0 16px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;" style-hover="background:#4096ff;">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- MODAL: CONFIRM DELETE -->
+  <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;">
+      <div onClick="{{ cancelDelete }}" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);animation:om-fadein .2s ease;"></div>
       <div style="position:relative;width:416px;max-width:92vw;background:#fff;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,0.12);padding:20px 24px;animation:om-pop .2s ease;">
         <div style="display:flex;gap:12px;">
           <div style="width:22px;height:22px;border-radius:50%;background:#ff4d4f;color:#fff;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-top:1px;">!</div>
-          <div>
-            <div style="font-size:16px;font-weight:600;color:rgba(0,0,0,0.88);">Excluir colaborador</div>
-            <div style="font-size:14px;color:rgba(0,0,0,0.65);margin-top:8px;">Tem certeza que deseja excluir <strong>{{ confirmName }}</strong>? O cadastro será removido permanentemente. Para manter a trilha de auditoria, considere inativar em vez de excluir.</div>
-          </div>
+          <div><div style="font-size:16px;font-weight:600;">Excluir {{ confirmKind }}</div><div style="font-size:14px;color:rgba(0,0,0,0.65);margin-top:8px;">Tem certeza que deseja excluir <strong>{{ confirmName }}</strong>? Colaboradores vinculados ficarão sem este registro.</div></div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:24px;">
-          <button onClick="{{ onCancelDelete }}" style="height:32px;padding:0 16px;background:#fff;color:rgba(0,0,0,0.88);border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;" style-hover="color:#1677ff;border-color:#1677ff;">Cancelar</button>
-          <button onClick="{{ onConfirmDelete }}" style="height:32px;padding:0 16px;background:#ff4d4f;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;" style-hover="background:#ff7875;">Excluir</button>
+          <button onClick="{{ cancelDelete }}" style="height:32px;padding:0 16px;background:#fff;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;" style-hover="color:#1677ff;border-color:#1677ff;">Cancelar</button>
+          <button onClick="{{ doDelete }}" style="height:32px;padding:0 16px;background:#ff4d4f;color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;" style-hover="background:#ff7875;">Excluir</button>
         </div>
       </div>
     </div>
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:820}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:860}}">
 class Component extends DCLogic {
-  emptyForm() {
-    return { photo:'', nome:'', cpf:'', nascimento:'', email:'', celular:'',
-      cep:'', logradouro:'', numero:'', cidade:'', uf:'', matricula:'',
-      cargo:'', departamento:'', obra:'', contrato:'CLT', admissao:'',
-      perfil:'Engenheiro de campo', status:'Ativo', mfa:false };
+  TELAS = ['Colaboradores','Equipes','Centros de custo','Perfis & Permissões'];
+  COLS = [
+    {key:'matricula',label:'Matrícula'},
+    {key:'nome',label:'Colaborador'},
+    {key:'cargo',label:'Cargo'},
+    {key:'equipe',label:'Equipe'},
+    {key:'centro',label:'Centro de custo'},
+    {key:'celular',label:'Celular'},
+    {key:'status',label:'Status'},
+    {key:'matriculaPetrobras',label:'Matr. Petrobras'},
+    {key:'cpf',label:'CPF'},
+    {key:'admissao',label:'Admissão'},
+    {key:'cidade',label:'Cidade/UF'},
+    {key:'email',label:'E-mail'},
+    {key:'perfil',label:'Perfil de acesso'},
+  ];
+
+  seedEquipes(){ return [
+    {id:'eq1',nome:'Civil',sigla:'CIV',responsavel:'Encarregado de Obra Civil',descricao:'Estruturas, concreto e alvenaria'},
+    {id:'eq2',nome:'Elétrica',sigla:'ELE',responsavel:'Encarregado de Elétrica',descricao:'Montagem e manutenção elétrica'},
+    {id:'eq3',nome:'Andaimes',sigla:'AND',responsavel:'Líder de Turma',descricao:'Montagem e desmontagem de andaimes'},
+    {id:'eq4',nome:'Mecânica / Montagem',sigla:'MEC',responsavel:'Gerente de Construção e Montagem',descricao:'Montagem mecânica e tubulação'},
+    {id:'eq5',nome:'Suprimentos',sigla:'SUP',responsavel:'Gerente de Suprimentos',descricao:'Compras e almoxarifado'},
+    {id:'eq6',nome:'Qualidade',sigla:'QUA',responsavel:'Coordenador de Qualidade',descricao:'Inspeção e controle de qualidade'},
+    {id:'eq7',nome:'SMS',sigla:'SMS',responsavel:'Coordenador de SMS',descricao:'Saúde, meio ambiente e segurança'},
+    {id:'eq8',nome:'Planejamento',sigla:'PLA',responsavel:'Gerente de Planejamento',descricao:'Controle de prazos e produção'},
+    {id:'eq9',nome:'Administrativo',sigla:'ADM',responsavel:'Gerente Administrativo',descricao:'Apoio administrativo e pessoal'},
+  ]; }
+  seedCentros(){ return [
+    {id:'cc1',codigo:'EPC-15',nome:'REDUC — Refinaria de Duque de Caxias',cliente:'Petrobras'},
+    {id:'cc2',codigo:'EPC-22',nome:'COMPERJ — Itaboraí',cliente:'Petrobras'},
+    {id:'cc3',codigo:'ADM-RIO',nome:'Administrativo Filial Rio',cliente:'Interno'},
+    {id:'cc4',codigo:'MNT-01',nome:'Manutenção e Apoio de Campo',cliente:'Petrobras'},
+  ]; }
+  emptyPerms(val){ const o={}; this.TELAS.forEach(t=>o[t]={c:val,r:val,u:val,d:val}); return o; }
+  seedPerfis(){
+    const P=(c,r,u,d)=>({c,r,u,d}), ro=P(false,true,false,false), no=P(false,false,false,false), all=P(true,true,true,true);
+    const mk=a=>({'Colaboradores':a[0],'Equipes':a[1],'Centros de custo':a[2],'Perfis & Permissões':a[3]});
+    return [
+      {id:'pf1',nome:'Admin RH',cor:'#d4380d',descricao:'Acesso total ao módulo de pessoas e acessos',perms:mk([all,all,all,all])},
+      {id:'pf2',nome:'Gestor de Equipe',cor:'#2f54eb',descricao:'Gerencia colaboradores e a própria equipe',perms:mk([P(false,true,true,false),P(true,true,true,false),ro,no])},
+      {id:'pf3',nome:'Suprimentos',cor:'#08979c',descricao:'Mantém centros de custo; consulta pessoas',perms:mk([ro,ro,all,no])},
+      {id:'pf4',nome:'Consulta',cor:'#389e0d',descricao:'Somente leitura em todas as telas',perms:mk([ro,ro,ro,ro])},
+    ];
   }
 
-  state = {
-    search:'', filterRole:'', filterStatus:'',
-    drawerOpen:false, editingId:null, confirmId:null, formError:false,
-    form: this.emptyForm(),
-    users: [
-      { id:'u1', photo:'', nome:'Marina Albuquerque', cpf:'318.452.190-77', nascimento:'1989-04-12', email:'marina.albuquerque@construtora.com.br', celular:'(21) 99812-4477', cep:'24210-200', logradouro:'Rua Lopes Trovão', numero:'145', cidade:'Niterói', uf:'RJ', matricula:'ENG-0142', cargo:'Engenheira de Campo', departamento:'Engenharia', obra:'Residencial Vista Verde', contrato:'CLT', admissao:'2021-03-08', perfil:'Engenheiro de campo', status:'Ativo', mfa:true },
-      { id:'u2', photo:'', nome:'Rafael Nogueira', cpf:'205.119.840-09', nascimento:'1978-11-30', email:'rafael.nogueira@construtora.com.br', celular:'(21) 98741-0982', cep:'22070-011', logradouro:'Av. Atlântica', numero:'2000', cidade:'Rio de Janeiro', uf:'RJ', matricula:'DIR-0007', cargo:'Diretor de Obras', departamento:'Engenharia', obra:'Edifício Aurora', contrato:'CLT', admissao:'2016-01-18', perfil:'Diretor de obra', status:'Ativo', mfa:true },
-      { id:'u3', photo:'', nome:'Camila Ferraz', cpf:'441.027.385-22', nascimento:'1992-07-05', email:'camila.ferraz@construtora.com.br', celular:'(21) 99003-7711', cep:'20040-002', logradouro:'Rua da Quitanda', numero:'52', cidade:'Rio de Janeiro', uf:'RJ', matricula:'SUP-0231', cargo:'Analista de Compras', departamento:'Suprimentos', obra:'Galpão Industrial CPL', contrato:'CLT', admissao:'2022-09-12', perfil:'Comprador', status:'Ativo', mfa:false },
-      { id:'u4', photo:'', nome:'Diego Santana', cpf:'137.560.402-61', nascimento:'1985-02-23', email:'diego.santana@construtora.com.br', celular:'(21) 98220-5566', cep:'24435-005', logradouro:'Estrada Caetano Monteiro', numero:'870', cidade:'Niterói', uf:'RJ', matricula:'ALM-0099', cargo:'Almoxarife', departamento:'Suprimentos', obra:'Residencial Vista Verde', contrato:'Terceirizado', admissao:'2023-05-02', perfil:'Almoxarife', status:'Inativo', mfa:false },
-      { id:'u5', photo:'', nome:'Patrícia Lemos', cpf:'509.318.276-40', nascimento:'1990-09-17', email:'patricia.lemos@construtora.com.br', celular:'(21) 99655-1230', cep:'22250-040', logradouro:'Rua Voluntários da Pátria', numero:'310', cidade:'Rio de Janeiro', uf:'RJ', matricula:'FIN-0044', cargo:'Analista Financeiro', departamento:'Financeiro', obra:'Edifício Aurora', contrato:'CLT', admissao:'2020-08-24', perfil:'Financeiro', status:'Ativo', mfa:true },
-      { id:'u6', photo:'', nome:'Eduardo Tavares', cpf:'623.401.957-18', nascimento:'1981-12-01', email:'eduardo.tavares@construtora.com.br', celular:'(21) 98109-3344', cep:'20021-130', logradouro:'Av. Rio Branco', numero:'156', cidade:'Rio de Janeiro', uf:'RJ', matricula:'AUD-0012', cargo:'Auditor Interno', departamento:'Auditoria', obra:'Reforma Sede', contrato:'PJ', admissao:'2019-04-15', perfil:'Auditor', status:'Inativo', mfa:false },
-    ],
-  };
-
-  roleMeta(p){
-    const m = {
-      'Diretor de obra':{bg:'#f0f5ff',border:'#adc6ff',text:'#2f54eb'},
-      'Engenheiro de campo':{bg:'#e6f4ff',border:'#91caff',text:'#1677ff'},
-      'Comprador':{bg:'#fffbe6',border:'#ffe58f',text:'#d48806'},
-      'Almoxarife':{bg:'#e6fffb',border:'#87e8de',text:'#08979c'},
-      'Financeiro':{bg:'#f6ffed',border:'#b7eb8f',text:'#389e0d'},
-      'Auditor':{bg:'#f9f0ff',border:'#d3adf7',text:'#722ed1'},
-      'Admin RH':{bg:'#fff2e8',border:'#ffbb96',text:'#d4380d'},
-    };
-    return m[p] || {bg:'#fafafa',border:'#d9d9d9',text:'rgba(0,0,0,0.65)'};
-  }
-  statusMeta(s){
-    return s==='Ativo'
-      ? {bg:'#f6ffed',border:'#b7eb8f',text:'#389e0d',dot:'#52c41a'}
-      : {bg:'rgba(0,0,0,0.02)',border:'#d9d9d9',text:'rgba(0,0,0,0.45)',dot:'#bfbfbf'};
-  }
-  initials(nome){
-    return (nome||'').trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('') || '?';
-  }
-
-  field(k,v){ this.setState(s=>({ form:{...s.form,[k]:v}, formError: k==='nome'? false : s.formError })); }
-  openNew(){ this.setState({ drawerOpen:true, editingId:null, formError:false, form:this.emptyForm() }); }
-  openEdit(id){ const u=this.state.users.find(x=>x.id===id); if(!u) return; this.setState({ drawerOpen:true, editingId:id, formError:false, form:{...this.emptyForm(), ...u} }); }
-  closeDrawer(){ this.setState({ drawerOpen:false }); }
-  save(){
-    const f=this.state.form;
-    if(!f.nome || !f.nome.trim()){ this.setState({formError:true}); return; }
-    this.setState(s=>{
-      if(s.editingId){
-        return { users: s.users.map(u=> u.id===s.editingId ? {...u,...f} : u), drawerOpen:false };
-      }
-      return { users:[...s.users, {...f, id:'u'+Date.now()}], drawerOpen:false };
+  makeEmpregados(){
+    const raw=(typeof window!=='undefined'&&window.RH_EMPREGADOS)?window.RH_EMPREGADOS:[];
+    const eq=['eq1','eq2','eq3','eq4','eq5','eq6','eq7','eq8','eq9'];
+    const cc=['cc1','cc1','cc2','cc3','cc2','cc4'];
+    const pf=['pf4','pf4','pf2','pf1','pf4','pf3'];
+    return raw.map((r,i)=>{
+      const perfilId=pf[i%pf.length];
+      const base=this.seedPerfis().find(p=>p.id===perfilId);
+      return {
+        ...r, id:'emp'+r.matricula,
+        foto:'', cargoLocal:(i%9===4?'Encarregado de Frente':''),
+        matriculaPetrobras:(i%4===0?('PB'+(7100+i*13)):''),
+        emailLocal:'',
+        locCep:'',locRua:'',locNumero:'',locComplemento:'',locBairro:'',locCidade:'',locUf:'',
+        equipeId:eq[i%eq.length], centroId:cc[i%cc.length], perfilId,
+        perms: base?JSON.parse(JSON.stringify(base.perms)):this.emptyPerms(false),
+        status:(i===4||i===11||i===18?'Inativo':'Ativo'),
+        senhaTemp:'',
+        edited:{},
+      };
     });
   }
-  askDelete(id){ this.setState({ confirmId:id }); }
-  cancelDelete(){ this.setState({ confirmId:null }); }
-  confirmDelete(){ this.setState(s=>({ users:s.users.filter(u=>u.id!==s.confirmId), confirmId:null })); }
-  onPhoto(e){
-    const file=e.target.files && e.target.files[0]; if(!file) return;
-    const r=new FileReader(); r.onload=()=>this.field('photo', r.result); r.readAsDataURL(file);
+
+  state={
+    view:'colaboradores',
+    empregados:this.makeEmpregados(),
+    equipes:this.seedEquipes(),
+    centros:this.seedCentros(),
+    perfis:this.seedPerfis(),
+    sidebarCollapsed:false, navSubExpanded:true,
+    search:'', filterEquipe:'', filterCentro:'', filterStatus:'',
+    visibleCols:{matricula:true,nome:true,cargo:true,equipe:true,centro:true,celular:true,status:true,matriculaPetrobras:false,cpf:false,admissao:false,cidade:false,email:false,perfil:false},
+    colMenuOpen:false,
+    detailId:null, draft:null, detailTab:'dados',
+    equipeModal:false, equipeDraft:null,
+    centroModal:false, centroDraft:null,
+    perfilModal:false, perfilDraft:null,
+    confirm:null,
+  };
+
+  componentDidMount(){
+    if((!this.state.empregados||!this.state.empregados.length) && window.RH_EMPREGADOS){
+      this.setState({empregados:this.makeEmpregados()});
+    }
+  }
+
+  // ---- helpers ----
+  initials(n){ return (n||'').trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?'; }
+  avatar(n){ const c=[['#e6f4ff','#1677ff'],['#f6ffed','#389e0d'],['#fff7e6','#d46b08'],['#f9f0ff','#722ed1'],['#fff1f0','#cf1322'],['#e6fffb','#08979c'],['#fcffe6','#7cb305']]; let h=0; for(const ch of (n||'')) h=(h*31+ch.charCodeAt(0))>>>0; return c[h%c.length]; }
+  fmtCpf(c){ c=(c||'').replace(/\D/g,'').padStart(11,'0').slice(0,11); return c.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4'); }
+  fmtCep(c){ c=(c||'').replace(/\D/g,''); return c.length===8?c.replace(/(\d{5})(\d{3})/,'$1-$2'):(c||''); }
+  eqById(id){ return this.state.equipes.find(e=>e.id===id); }
+  ccById(id){ return this.state.centros.find(c=>c.id===id); }
+  pfById(id){ return this.state.perfis.find(p=>p.id===id); }
+  statusMeta(s){ return s==='Ativo'?{bg:'#f6ffed',border:'#b7eb8f',text:'#389e0d',dot:'#52c41a'}:{bg:'rgba(0,0,0,0.02)',border:'#d9d9d9',text:'rgba(0,0,0,0.45)',dot:'#bfbfbf'}; }
+
+  // ---- nav ----
+  setView(v){ this.setState({view:v,colMenuOpen:false}); }
+
+  // ---- columns ----
+  toggleColMenu(){ this.setState(s=>({colMenuOpen:!s.colMenuOpen})); }
+  toggleCol(k){ this.setState(s=>({visibleCols:{...s.visibleCols,[k]:!s.visibleCols[k]}})); }
+
+  // ---- detail drawer ----
+  openDetail(id){ const e=this.state.empregados.find(x=>x.id===id); if(!e)return; this.setState({detailId:id,detailTab:'dados',draft:JSON.parse(JSON.stringify(e))}); }
+  closeDetail(){ this.setState({detailId:null,draft:null}); }
+  setDetailTab(t){ this.setState({detailTab:t}); }
+  draftField(k,v){ this.setState(s=>({draft:{...s.draft,[k]:v,edited:{...s.draft.edited,[k]:true}}})); }
+  draftPlain(k,v){ this.setState(s=>({draft:{...s.draft,[k]:v}})); }
+  onDetailPhoto(e){ const f=e.target.files&&e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>this.draftPlain('foto',r.result); r.readAsDataURL(f); }
+  changePerfil(id){ const p=this.pfById(id); this.setState(s=>({draft:{...s.draft,perfilId:id,perms:p?JSON.parse(JSON.stringify(p.perms)):s.draft.perms}})); }
+  toggleDetailPerm(tela,act){ this.setState(s=>{ const perms=JSON.parse(JSON.stringify(s.draft.perms)); perms[tela][act]=!perms[tela][act]; return {draft:{...s.draft,perms}}; }); }
+  genSenha(){ const ch='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%'; let p=''; for(let i=0;i<10;i++) p+=ch[Math.floor(Math.random()*ch.length)]; this.draftPlain('senhaTemp',p); }
+  copySenha(){ const v=this.state.draft&&this.state.draft.senhaTemp; if(v&&navigator.clipboard) navigator.clipboard.writeText(v).catch(()=>{}); }
+  saveDetail(){ this.setState(s=>({empregados:s.empregados.map(e=>e.id===s.detailId?{...s.draft}:e),detailId:null,draft:null})); }
+
+  // ---- equipes ----
+  openEquipe(id){ const e=id?this.eqById(id):{id:'',nome:'',sigla:'',responsavel:'',descricao:''}; this.setState({equipeModal:true,equipeDraft:{...e}}); }
+  equipeField(k,v){ this.setState(s=>({equipeDraft:{...s.equipeDraft,[k]:v}})); }
+  saveEquipe(){ const d=this.state.equipeDraft; if(!d.nome.trim())return; this.setState(s=>({equipes:d.id?s.equipes.map(e=>e.id===d.id?{...d}:e):[...s.equipes,{...d,id:'eq'+Date.now()}],equipeModal:false,equipeDraft:null})); }
+  closeEquipe(){ this.setState({equipeModal:false,equipeDraft:null}); }
+
+  // ---- centros ----
+  openCentro(id){ const c=id?this.ccById(id):{id:'',codigo:'',nome:'',cliente:''}; this.setState({centroModal:true,centroDraft:{...c}}); }
+  centroField(k,v){ this.setState(s=>({centroDraft:{...s.centroDraft,[k]:v}})); }
+  saveCentro(){ const d=this.state.centroDraft; if(!d.codigo.trim())return; this.setState(s=>({centros:d.id?s.centros.map(c=>c.id===d.id?{...d}:c):[...s.centros,{...d,id:'cc'+Date.now()}],centroModal:false,centroDraft:null})); }
+  closeCentro(){ this.setState({centroModal:false,centroDraft:null}); }
+
+  // ---- perfis ----
+  openPerfil(id){ const p=id?this.pfById(id):{id:'',nome:'',cor:'#1677ff',descricao:'',perms:this.emptyPerms(false)}; this.setState({perfilModal:true,perfilDraft:JSON.parse(JSON.stringify(p))}); }
+  perfilField(k,v){ this.setState(s=>({perfilDraft:{...s.perfilDraft,[k]:v}})); }
+  togglePerfilPerm(tela,act){ this.setState(s=>{ const perms=JSON.parse(JSON.stringify(s.perfilDraft.perms)); perms[tela][act]=!perms[tela][act]; return {perfilDraft:{...s.perfilDraft,perms}}; }); }
+  savePerfil(){ const d=this.state.perfilDraft; if(!d.nome.trim())return; this.setState(s=>({perfis:d.id?s.perfis.map(p=>p.id===d.id?{...d}:p):[...s.perfis,{...d,id:'pf'+Date.now()}],perfilModal:false,perfilDraft:null})); }
+  closePerfil(){ this.setState({perfilModal:false,perfilDraft:null}); }
+
+  // ---- delete (only equipe/centro/perfil) ----
+  askDelete(type,id,name){ this.setState({confirm:{type,id,name}}); }
+  cancelDelete(){ this.setState({confirm:null}); }
+  doDelete(){ const c=this.state.confirm; if(!c)return; this.setState(s=>{ const o={confirm:null}; if(c.type==='equipe')o.equipes=s.equipes.filter(x=>x.id!==c.id); if(c.type==='centro')o.centros=s.centros.filter(x=>x.id!==c.id); if(c.type==='perfil')o.perfis=s.perfis.filter(x=>x.id!==c.id); return o; }); }
+
+  // ---- cell builder ----
+  cellFor(e,key){
+    const plain=(t,color)=>({key,isText:true,text:(t==null||t==='')?'—':t,color:color||'rgba(0,0,0,0.65)'});
+    if(key==='nome'){ const av=this.avatar(e.nome); const avStyle='width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:'+av[0]+';color:'+av[1]+';'+(e.foto?'background-image:url('+e.foto+');background-size:cover;background-position:center;overflow:hidden;':''); return {key,isName:true,text:e.nome,sub:e.cargoLocal||e.cargoRH,initials:this.initials(e.nome),noPhoto:!e.foto,avStyle}; }
+    if(key==='status'){ const m=this.statusMeta(e.status); return {key,isTag:true,text:e.status,tagBg:m.bg,tagBorder:m.border,tagText:m.text,hasDot:true,dot:m.dot}; }
+    if(key==='perfil'){ const p=this.pfById(e.perfilId); return p?{key,isTag:true,text:p.nome,tagBg:'#fff',tagBorder:p.cor,tagText:p.cor,hasDot:false}:plain('—'); }
+    if(key==='matricula') return plain(e.matricula,'rgba(0,0,0,0.85)');
+    if(key==='cargo') return plain(e.cargoLocal||e.cargoRH);
+    if(key==='equipe'){ const q=this.eqById(e.equipeId); return plain(q?q.nome:'—'); }
+    if(key==='centro'){ const c=this.ccById(e.centroId); return plain(c?c.codigo:'—'); }
+    if(key==='celular') return plain(e.celular);
+    if(key==='matriculaPetrobras') return plain(e.matriculaPetrobras);
+    if(key==='cpf') return plain(this.fmtCpf(e.cpf));
+    if(key==='admissao') return plain(e.admissao);
+    if(key==='cidade') return plain((e.endCidade||'')+(e.endUf?'/'+e.endUf:''));
+    if(key==='email') return plain(e.emailLocal||e.email);
+    return plain('');
   }
 
   renderVals(){
-    const st=this.state, q=st.search.trim().toLowerCase();
-    const filtered = st.users.filter(u=>{
-      if(st.filterRole && u.perfil!==st.filterRole) return false;
-      if(st.filterStatus && u.status!==st.filterStatus) return false;
-      if(q){ const hay=(u.nome+' '+u.cargo+' '+u.email+' '+u.obra).toLowerCase(); if(!hay.includes(q)) return false; }
+    const st=this.state;
+    const view=st.view;
+    const navTitles={colaboradores:['Recursos Humanos','Colaboradores'],equipes:['Cadastros','Equipes'],centros:['Cadastros','Centros de custo'],perfis:['Controle de acesso (CASL)','Perfis & Permissões']};
+    const bi='display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:7px;cursor:pointer;font-size:14px;transition:all .15s;white-space:nowrap;';
+    const si='display:flex;align-items:center;gap:9px;padding:7px 12px 7px 22px;border-radius:7px;cursor:pointer;font-size:13px;transition:all .15s;white-space:nowrap;';
+    const aS='background:#1677ff;color:#fff;font-weight:500;';
+    const pS='background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);font-weight:400;';
+    const iS='background:transparent;color:rgba(255,255,255,0.55);font-weight:400;';
+    const isSub=view==='equipes'||view==='centros'||view==='perfis';
+    const coll=st.sidebarCollapsed;
+    const ci='display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;cursor:pointer;transition:all .15s;';
+
+    // colaboradores table
+    const eqMap={}; st.equipes.forEach(e=>eqMap[e.id]=e);
+    const q=st.search.trim().toLowerCase();
+    const filtered=st.empregados.filter(e=>{
+      if(st.filterEquipe&&e.equipeId!==st.filterEquipe)return false;
+      if(st.filterCentro&&e.centroId!==st.filterCentro)return false;
+      if(st.filterStatus&&e.status!==st.filterStatus)return false;
+      if(q){ const h=(e.nome+' '+e.matricula+' '+e.cargoRH+' '+(e.cargoLocal||'')+' '+(e.matriculaPetrobras||'')).toLowerCase(); if(!h.includes(q))return false; }
       return true;
     });
-    const displayUsers = filtered.map(u=>{
-      const rm=this.roleMeta(u.perfil), sm=this.statusMeta(u.status);
-      return { ...u, hasPhoto:!!u.photo, noPhoto:!u.photo, initials:this.initials(u.nome),
-        rmBg:rm.bg, rmBorder:rm.border, rmText:rm.text,
-        smBg:sm.bg, smBorder:sm.border, smText:sm.text, smDot:sm.dot,
-        onEdit:()=>this.openEdit(u.id), onAsk:()=>this.askDelete(u.id) };
-    });
+    const cols=this.COLS.filter(c=>st.visibleCols[c.key]);
+    const rows=filtered.map(e=>({onOpen:()=>this.openDetail(e.id),cells:cols.map(c=>this.cellFor(e,c.key))}));
+    const colChooser=this.COLS.map(c=>({label:c.label,checked:!!st.visibleCols[c.key],toggle:()=>this.toggleCol(c.key)}));
 
-    const set={};
-    ['nome','cpf','nascimento','email','celular','cep','logradouro','numero','cidade','uf','matricula','cargo','departamento','obra','contrato','admissao','perfil'].forEach(k=>{
-      set[k]=e=>this.field(k, e.target.value);
-    });
+    const out={
+      lastSync:'26/06/2026 04:00',
+      viewKicker:navTitles[view][0], viewTitle:navTitles[view][1],
+      onNavColab:()=>{ this.setView('colaboradores'); this.setState(s=>({navSubExpanded:!s.navSubExpanded})); },
+      navSubExpanded:st.navSubExpanded,
+      navChevronStyle:'opacity:.45;transition:transform .2s;transform:rotate('+(st.navSubExpanded?'0':'-90')+'deg);',
+      onNavEquipes:()=>this.setView('equipes'),
+      onNavCentros:()=>this.setView('centros'),
+      onNavPerfis:()=>this.setView('perfis'),
+      navColabStyle:bi+(view==='colaboradores'?aS:isSub?pS:iS),
+      navEquipesStyle:si+(view==='equipes'?aS:iS),
+      navCentrosStyle:si+(view==='centros'?aS:iS),
+      navPerfisStyle:si+(view==='perfis'?aS:iS),
+      sidebarStyle:'width:'+(coll?'64':'236')+'px;flex:none;background:#001529;color:rgba(255,255,255,0.65);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;transition:width .2s cubic-bezier(.2,0,.1,1);overflow:hidden;',
+      showExpanded:!coll, showCollapsed:coll,
+      onToggleSidebar:()=>this.setState(s=>({sidebarCollapsed:!s.sidebarCollapsed})),
+      collapseChevronD:coll?'M5 3l4 4-4 4':'M9 3L5 7l4 4',
+      navColabCollapsed:ci+(view==='colaboradores'?aS:isSub?pS:iS),
+      navEquipesCollapsed:ci+(view==='equipes'?aS:iS),
+      navCentrosCollapsed:ci+(view==='centros'?aS:iS),
+      navPerfisCollapsed:ci+(view==='perfis'?aS:iS),
+      isColab:view==='colaboradores', isEquipes:view==='equipes', isCentros:view==='centros', isPerfis:view==='perfis',
 
-    const f=st.form;
-    const segBase='flex:1;text-align:center;padding:5px 12px;border-radius:4px;font-size:14px;cursor:pointer;transition:all .2s;user-select:none;';
-    const segOn='background:#fff;color:rgba(0,0,0,0.88);box-shadow:0 1px 2px rgba(0,0,0,0.12);font-weight:500;';
-    const segOff='background:transparent;color:rgba(0,0,0,0.55);';
-    const confirmUser = st.users.find(u=>u.id===st.confirmId);
-
-    return {
-      total: st.users.length,
-      ativos: st.users.filter(u=>u.status==='Ativo').length,
-      displayUsers, isEmpty: displayUsers.length===0,
-      search: st.search, onSearch:e=>this.setState({search:e.target.value}),
-      filterRole: st.filterRole, onFilterRole:e=>this.setState({filterRole:e.target.value}),
-      filterStatus: st.filterStatus, onFilterStatus:e=>this.setState({filterStatus:e.target.value}),
-      onNew:()=>this.openNew(),
-
-      drawerOpen: st.drawerOpen,
-      drawerTitle: st.editingId ? 'Editar colaborador' : 'Novo colaborador',
-      drawerSubtitle: st.editingId ? 'Atualize os dados do cadastro' : 'Preencha os dados do novo cadastro',
-      form: f, set,
-      nomeError: st.formError,
-      nomeBorder: st.formError ? '#ff4d4f' : '#d9d9d9',
-      hasPhoto: !!f.photo, noPhoto: !f.photo, formInitials:this.initials(f.nome),
-      onPhoto:e=>this.onPhoto(e),
-      removePhoto:()=>this.field('photo',''),
-      segAtivoStyle: segBase + (f.status==='Ativo'?segOn:segOff),
-      segInativoStyle: segBase + (f.status==='Inativo'?segOn:segOff),
-      setAtivo:()=>this.field('status','Ativo'),
-      setInativo:()=>this.field('status','Inativo'),
-      mfaOn: !!f.mfa, toggleMfa:()=>this.field('mfa', !f.mfa),
-      mfaTrackStyle:'position:relative;width:44px;height:22px;border-radius:11px;cursor:pointer;transition:background .2s;flex:none;background:'+(f.mfa?'#1677ff':'rgba(0,0,0,0.25)')+';',
-      mfaKnobStyle:'position:absolute;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,0.2);left:'+(f.mfa?'24px':'2px')+';',
-      onCloseDrawer:()=>this.closeDrawer(),
-      onSave:()=>this.save(),
-
-      confirmOpen: !!st.confirmId,
-      confirmName: confirmUser ? confirmUser.nome : '',
-      onCancelDelete:()=>this.cancelDelete(),
-      onConfirmDelete:()=>this.confirmDelete(),
+      colabCount:st.empregados.length,
+      ativosCount:st.empregados.filter(e=>e.status==='Ativo').length,
+      inativosCount:st.empregados.filter(e=>e.status==='Inativo').length,
+      search:st.search, onSearch:e=>this.setState({search:e.target.value}),
+      filterEquipe:st.filterEquipe, onFilterEquipe:e=>this.setState({filterEquipe:e.target.value}),
+      filterCentro:st.filterCentro, onFilterCentro:e=>this.setState({filterCentro:e.target.value}),
+      filterStatus:st.filterStatus, onFilterStatus:e=>this.setState({filterStatus:e.target.value}),
+      equipeOptions:st.equipes, centroOptions:st.centros.map(c=>({id:c.id,label:c.codigo+' — '+c.nome})),
+      colMenuOpen:st.colMenuOpen, toggleColMenu:()=>this.toggleColMenu(), colChooser,
+      cols, rows, colabEmpty:rows.length===0,
     };
+
+    this._injectDetail(out);
+    this._injectCrud(out);
+    return out;
+  }
+
+  _injectDetail(out){
+    const st=this.state, d=st.draft;
+    out.detailOpen=!!st.detailId;
+    if(!d){ return; }
+    const av=this.avatar(d.nome);
+    out.d=d;
+    out.dInitials=this.initials(d.nome);
+    out.dHasPhoto=!!d.foto; out.dNoPhoto=!d.foto; out.dAvBg=av[0]; out.dAvText=av[1];
+    out.dCpf=this.fmtCpf(d.cpf); out.dCep=this.fmtCep(d.endCep);
+    out.dCargoRH=d.cargoRH; out.dEmailRH=d.email||'—';
+    const sm=this.statusMeta(d.status);
+    out.dStatusBg=sm.bg; out.dStatusBorder=sm.border; out.dStatusText=sm.text; out.dStatusDot=sm.dot;
+    out.detailTab=st.detailTab;
+    out.setTabDados=()=>this.setDetailTab('dados'); out.setTabAcesso=()=>this.setDetailTab('acesso');
+    out.tabDadosOn=st.detailTab==='dados'; out.tabAcessoOn=st.detailTab==='acesso';
+    out.tabDadosStyle='padding:10px 16px;cursor:pointer;font-size:14px;border-bottom:2px solid '+(st.detailTab==='dados'?'#1677ff':'transparent')+';color:'+(st.detailTab==='dados'?'#1677ff':'rgba(0,0,0,0.65)')+';font-weight:'+(st.detailTab==='dados'?'600':'400')+';';
+    out.tabAcessoStyle='padding:10px 16px;cursor:pointer;font-size:14px;border-bottom:2px solid '+(st.detailTab==='acesso'?'#1677ff':'transparent')+';color:'+(st.detailTab==='acesso'?'#1677ff':'rgba(0,0,0,0.65)')+';font-weight:'+(st.detailTab==='acesso'?'600':'400')+';';
+    // editable handlers
+    out.setFoto=e=>this.onDetailPhoto(e);
+    out.removeFoto=()=>this.draftPlain('foto','');
+    const ef={};
+    ['cargoLocal','matriculaPetrobras','celular','emailLocal','locCep','locRua','locNumero','locComplemento','locBairro','locCidade','locUf'].forEach(k=>{ ef[k]=e=>this.draftField(k,e.target.value); });
+    out.ef=ef;
+    out.cargoPlaceholder=d.cargoRH;
+    out.cargoEdited=!!(d.edited&&d.edited.cargoLocal);
+    out.equipeSel=st.equipes; out.centroSel=st.centros; out.perfilSel=st.perfis;
+    out.dEquipeId=d.equipeId; out.dCentroId=d.centroId; out.dPerfilId=d.perfilId;
+    out.setEquipe=e=>this.draftPlain('equipeId',e.target.value);
+    out.setCentro=e=>this.draftPlain('centroId',e.target.value);
+    out.setPerfilSel=e=>this.changePerfil(e.target.value);
+    const curPf=this.pfById(d.perfilId);
+    out.perfilDesc=curPf?curPf.descricao:'';
+    // perms matrix
+    out.detailPerms=this.TELAS.map(t=>{
+      const p=d.perms[t]||{c:false,r:false,u:false,d:false};
+      const cb=(act,val)=>({on:val,toggle:()=>this.toggleDetailPerm(t,act),
+        style:'width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;transition:all .12s;border:1px solid '+(val?'#1677ff':'#d9d9d9')+';background:'+(val?'#1677ff':'#fff')+';color:'+(val?'#fff':'rgba(0,0,0,0.25)')+';'});
+      return {tela:t, c:cb('c',p.c), r:cb('r',p.r), u:cb('u',p.u), d:cb('d',p.d)};
+    });
+    out.dSenha=d.senhaTemp; out.hasSenha=!!d.senhaTemp;
+    out.genSenha=()=>this.genSenha(); out.copySenha=()=>this.copySenha();
+    out.closeDetail=()=>this.closeDetail(); out.saveDetail=()=>this.saveDetail();
+    out.hasEndLocal=!!(d.locRua||d.locCep||d.locBairro||d.locCidade);
+  }
+
+  _injectCrud(out){
+    const st=this.state;
+    // equipes
+    out.equipesList=st.equipes.map(e=>({...e, membros:st.empregados.filter(x=>x.equipeId===e.id).length, onEdit:()=>this.openEquipe(e.id), onDelete:()=>this.askDelete('equipe',e.id,e.nome)}));
+    out.onNewEquipe=()=>this.openEquipe(null);
+    out.equipeModal=st.equipeModal; out.eq=st.equipeDraft||{};
+    out.equipeTitle=(st.equipeDraft&&st.equipeDraft.id)?'Editar equipe':'Nova equipe';
+    out.eqf={nome:e=>this.equipeField('nome',e.target.value),sigla:e=>this.equipeField('sigla',e.target.value),responsavel:e=>this.equipeField('responsavel',e.target.value),descricao:e=>this.equipeField('descricao',e.target.value)};
+    out.saveEquipe=()=>this.saveEquipe(); out.closeEquipe=()=>this.closeEquipe();
+    // centros
+    out.centrosList=st.centros.map(c=>({...c, membros:st.empregados.filter(x=>x.centroId===c.id).length, onEdit:()=>this.openCentro(c.id), onDelete:()=>this.askDelete('centro',c.id,c.codigo)}));
+    out.onNewCentro=()=>this.openCentro(null);
+    out.centroModal=st.centroModal; out.cc=st.centroDraft||{};
+    out.centroTitle=(st.centroDraft&&st.centroDraft.id)?'Editar centro de custo':'Novo centro de custo';
+    out.ccf={codigo:e=>this.centroField('codigo',e.target.value),nome:e=>this.centroField('nome',e.target.value),cliente:e=>this.centroField('cliente',e.target.value)};
+    out.saveCentro=()=>this.saveCentro(); out.closeCentro=()=>this.closeCentro();
+    // perfis
+    out.perfisList=st.perfis.map(p=>{
+      const resumo=this.TELAS.map(t=>{const x=p.perms[t]; return (x.c?'C':'')+(x.r?'R':'')+(x.u?'U':'')+(x.d?'D':'')||'—';});
+      return {...p, membros:st.empregados.filter(x=>x.perfilId===p.id).length,
+        chips:this.TELAS.map((t,i)=>({tela:t,val:resumo[i]})),
+        onEdit:()=>this.openPerfil(p.id), onDelete:()=>this.askDelete('perfil',p.id,p.nome)};
+    });
+    out.onNewPerfil=()=>this.openPerfil(null);
+    out.perfilModal=st.perfilModal; out.pf=st.perfilDraft||{};
+    out.perfilTitle=(st.perfilDraft&&st.perfilDraft.id)?'Editar perfil':'Novo perfil';
+    out.pff={nome:e=>this.perfilField('nome',e.target.value),descricao:e=>this.perfilField('descricao',e.target.value)};
+    out.perfilCorOptions=['#d4380d','#2f54eb','#08979c','#389e0d','#722ed1','#1677ff'].map(c=>({cor:c,sel:(st.perfilDraft&&st.perfilDraft.cor===c),pick:()=>this.perfilField('cor',c),
+      style:'width:26px;height:26px;border-radius:50%;cursor:pointer;background:'+c+';border:2px solid '+((st.perfilDraft&&st.perfilDraft.cor===c)?'rgba(0,0,0,0.5)':'transparent')+';box-shadow:0 0 0 1px #fff inset;'}));
+    if(st.perfilDraft){
+      out.perfilPerms=this.TELAS.map(t=>{
+        const p=st.perfilDraft.perms[t]||{c:false,r:false,u:false,d:false};
+        const cb=(act,val)=>({on:val,toggle:()=>this.togglePerfilPerm(t,act),
+          style:'width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;font-weight:600;transition:all .12s;border:1px solid '+(val?'#1677ff':'#d9d9d9')+';background:'+(val?'#1677ff':'#fff')+';color:'+(val?'#fff':'rgba(0,0,0,0.25)')+';'});
+        return {tela:t, c:cb('c',p.c), r:cb('r',p.r), u:cb('u',p.u), d:cb('d',p.d)};
+      });
+    }
+    out.savePerfil=()=>this.savePerfil(); out.closePerfil=()=>this.closePerfil();
+    // confirm
+    out.confirmOpen=!!st.confirm; out.confirmName=st.confirm?st.confirm.name:'';
+    out.confirmKind=st.confirm?({equipe:'equipe',centro:'centro de custo',perfil:'perfil'})[st.confirm.type]:'';
+    out.cancelDelete=()=>this.cancelDelete(); out.doDelete=()=>this.doDelete();
   }
 }
 </script>
